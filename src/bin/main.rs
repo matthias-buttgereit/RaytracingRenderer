@@ -2,14 +2,28 @@ use std::{fs::File, io::BufWriter, path::Path, time::Instant};
 
 use raytracing::{
     ray::Ray,
-    vec3::{unit_vector, Color, Point3, Vec3},
+    vec3::{dot, unit_vector, Color, Point3, Vec3},
     write_color,
 };
 
 fn ray_color(r: Ray) -> Color {
+    if hit_sphere(Point3::new(0.0, 0.0, 1.0), 0.5, r) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
+
     let unit_direction = unit_vector(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+}
+
+fn hit_sphere(center: Point3, radius: f64, r: Ray) -> bool {
+    let oc = r.origin() - center;
+    let a = dot(&r.direction(), &r.direction());
+    let b = 2.0 * dot(&oc, &r.direction());
+    let c = dot(&oc, &oc) - radius * radius;
+    let discrim = b * b - 4.0 * a * c;
+
+    discrim > 0.0
 }
 
 fn main() {
@@ -51,7 +65,7 @@ fn main() {
                 origin,
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
-            
+
             let pixel_color = ray_color(r);
             write_color(&mut data, pixel_color);
         }
