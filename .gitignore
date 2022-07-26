@@ -38,3 +38,10 @@ images/test2.ppm
 images/test3.ppm
 images/test4.ppm
 >>>>>>> Stashed changes
+
+
+# Added by cargo
+#
+# already existing elements were commented out
+
+#/target
