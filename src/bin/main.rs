@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufWriter, path::Path};
+use std::{fs::File, io::BufWriter, path::Path, time::Instant};
 
 use raytracing::{vec3::Color, write_color};
 
@@ -16,8 +16,10 @@ fn main() {
     encoder.set_color(png::ColorType::Rgb);
     let mut writer = encoder.write_header().unwrap();
 
+    let start = Instant::now();
+
     for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {}", j);
+        eprint!("\rScanlines remaining: {}  ", j);
         for i in 0..image_width {
             let r = i as f64 / (image_width - 1) as f64;
             let g = j as f64 / (image_height - 1) as f64;
@@ -27,11 +29,18 @@ fn main() {
             let g = 255.999 * g;
             let b = 255.999 * b;
 
-            write_color(&mut data, Color::new(r, g, b));
+            let pixel_color = Color::new(r, g, b);
+
+            write_color(&mut data, pixel_color);
         }
     }
-
-    eprintln!("\nDone!");
-
     writer.write_image_data(&data).unwrap();
+
+    let end = start.elapsed();
+
+    eprintln!(
+        "\nFinished in {}:{} minutes!",
+        end.as_secs() / 60,
+        end.as_secs() % 60
+    );
 }
