@@ -1,16 +1,16 @@
 use std::{fs::File, io::BufWriter, path::Path, time::Instant};
 
 use raytracing::{
+    hits::{hittable::Hittable, hittalbe_list::HittableList},
+    objects::sphere::Sphere,
     ray::Ray,
-    vec3::{dot, unit_vector, Color, Point3, Vec3},
+    vec3::{unit_vector, Color, Point3, Vec3},
     write_color,
 };
 
-fn ray_color(r: Ray) -> Color {
-    let t = hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        let n = unit_vector(r.at(t) - Vec3::new(0.0, 0.0, -1.0));
-        return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
+fn ray_color(r: Ray, world: &dyn Hittable) -> Color {
+    if let Some(hitrecord) = world.hit(&r, (0.0, f64::INFINITY)) {
+        return 0.5 * (hitrecord.normal + Color::new(1.0, 1.0, 1.0));
     }
 
     let unit_direction = unit_vector(r.direction());
@@ -18,25 +18,16 @@ fn ray_color(r: Ray) -> Color {
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
-fn hit_sphere(center: Point3, radius: f64, r: Ray) -> f64 {
-    let oc = r.origin() - center;
-    let a = r.direction().len_squared();
-    let half_b = dot(&oc, &r.direction());
-    let c = oc.len_squared() - radius * radius;
-    let discrim = half_b * half_b - a * c;
-
-    if discrim < 0.0 {
-        -1.0
-    } else {
-        (-half_b - discrim.sqrt()) / a
-    }
-}
-
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
     let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
+
+    // World
+    let mut world = HittableList::new();
+    world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera
     let viewport_height = 2.0;
@@ -72,7 +63,7 @@ fn main() {
                 lower_left_corner + u * horizontal + v * vertical - origin,
             );
 
-            let pixel_color = ray_color(r);
+            let pixel_color = ray_color(r, &world);
             write_color(&mut data, pixel_color);
         }
     }

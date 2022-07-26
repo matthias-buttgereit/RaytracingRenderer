@@ -1,6 +1,7 @@
 use crate::{
+    hits::hittable::{HitRecord, Hittable},
     ray,
-    vec3::{dot, Point3}, hits::hittable::{Hittable, HitRecord},
+    vec3::{dot, Point3},
 };
 
 #[derive(Default, Clone, Copy)]
@@ -47,7 +48,7 @@ impl Hittable for Sphere {
             t,
             p,
             normal,
-            front_face: false,
+            front_face: true,
         };
         result.set_face_normal(r, normal);
 
