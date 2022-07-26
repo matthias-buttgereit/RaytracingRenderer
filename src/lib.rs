@@ -1,5 +1,7 @@
 use vec3::Color;
 
+pub mod hits;
+pub mod objects;
 pub mod ray;
 pub mod vec3;
 
