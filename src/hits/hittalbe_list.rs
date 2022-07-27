@@ -2,6 +2,7 @@ use crate::ray::Ray;
 
 use super::hittable::{HitRecord, Hittable};
 
+#[derive(Default)]
 pub struct HittableList {
     list: Vec<Box<dyn Hittable>>,
 }

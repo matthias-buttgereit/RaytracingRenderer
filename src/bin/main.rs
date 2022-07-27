@@ -1,10 +1,12 @@
 use std::{fs::File, io::BufWriter, path::Path, time::Instant};
 
+use rand::{prelude::SmallRng, Rng, thread_rng};
 use raytracing::{
+    camera::Camera,
     hits::{hittable::Hittable, hittalbe_list::HittableList},
     objects::sphere::Sphere,
     ray::Ray,
-    vec3::{unit_vector, Color, Point3, Vec3},
+    vec3::{unit_vector, Color, Point3},
     write_color,
 };
 
@@ -23,6 +25,7 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
+    let samples_per_pixel: u32 = 100;
 
     // World
     let mut world = HittableList::new();
@@ -30,15 +33,7 @@ fn main() {
     world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Point3::default();
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
+    let camera = Camera::new();
 
     // PNG File
     let mut data: Vec<u8> = Vec::with_capacity((3 * image_width * image_height) as usize);
@@ -54,17 +49,17 @@ fn main() {
     // Render
     let start = Instant::now();
     for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {}  ", j);
+        eprint!("\rScanlines remaining: {} ", j);
         for i in 0..image_width {
-            let u = i as f64 / (image_width - 1) as f64;
-            let v = j as f64 / (image_height - 1) as f64;
-            let r = Ray::new(
-                origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
-            );
+            let mut pixel_color = Color::default();
+            for _ in 0..samples_per_pixel {
+                let u = (i as f64 + thread_rng().gen_range(0.0..1.0)) / (image_width - 1) as f64;
+                let v = (j as f64 + thread_rng().gen_range(0.0..1.0)) / (image_height - 1) as f64;
+                let r = camera.get_ray(u, v);
 
-            let pixel_color = ray_color(r, &world);
-            write_color(&mut data, pixel_color);
+                pixel_color += ray_color(r, &world);
+            }
+            write_color(&mut data, pixel_color, samples_per_pixel);
         }
     }
     writer.write_image_data(&data).unwrap();
