@@ -1,5 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
+use rand::{thread_rng, Rng};
+
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vec3 {
     x: f64,
@@ -33,6 +35,11 @@ impl Vec3 {
 
     pub fn len_squared(&self) -> f64 {
         self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 0.00000001;
+        self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
 }
 
@@ -150,6 +157,40 @@ pub fn cross(u: &Vec3, v: &Vec3) -> Vec3 {
 
 pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.len()
+}
+
+pub fn random_vector() -> Vec3 {
+    Vec3 {
+        x: thread_rng().gen_range(0.0..1.0),
+        y: thread_rng().gen_range(0.0..1.0),
+        z: thread_rng().gen_range(0.0..1.0),
+    }
+}
+
+pub fn random_vector_in_range(min: f64, max: f64) -> Vec3 {
+    Vec3 {
+        x: thread_rng().gen_range(min..max),
+        y: thread_rng().gen_range(min..max),
+        z: thread_rng().gen_range(min..max),
+    }
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = random_vector_in_range(-1.0, 1.0);
+        if p.len_squared() >= 1.0 {
+            continue;
+        }
+        return p;
+    }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    unit_vector(random_in_unit_sphere())
+}
+
+pub fn reflect(vector: &Vec3, unit_vector: &Vec3) -> Vec3 {
+    *vector - 2.0 * dot(vector, unit_vector) * *unit_vector
 }
 
 impl Index<usize> for Vec3 {

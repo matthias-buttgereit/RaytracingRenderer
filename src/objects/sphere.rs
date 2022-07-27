@@ -1,18 +1,26 @@
+use std::rc::Rc;
+
 use crate::{
     hits::hittable::{HitRecord, Hittable},
+    materials::Material,
     ray,
     vec3::{dot, Point3},
 };
 
-#[derive(Default, Clone, Copy)]
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Self {
-        Self { center, radius }
+    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
+        Self {
+            center,
+            radius,
+            material: Rc::clone(&material),
+        }
     }
 }
 
@@ -49,6 +57,7 @@ impl Hittable for Sphere {
             p,
             normal,
             front_face: true,
+            material: Rc::clone(&self.material),
         };
         result.set_face_normal(r, normal);
 

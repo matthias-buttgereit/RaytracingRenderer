@@ -1,24 +1,15 @@
-use std::{fs::File, io::BufWriter, path::Path, time::Instant};
+use std::{fs::File, io::BufWriter, path::Path, rc::Rc, time::Instant};
 
-use rand::{prelude::SmallRng, Rng, thread_rng};
+use rand::{thread_rng, Rng};
 use raytracing::{
     camera::Camera,
-    hits::{hittable::Hittable, hittalbe_list::HittableList},
+    hits::hittalbe_list::HittableList,
+    materials::{lambertian::Lambertian, metal::Metal},
     objects::sphere::Sphere,
-    ray::Ray,
-    vec3::{unit_vector, Color, Point3},
+    ray_color,
+    vec3::{Color, Point3},
     write_color,
 };
-
-fn ray_color(r: Ray, world: &dyn Hittable) -> Color {
-    if let Some(hitrecord) = world.hit(&r, (0.0, f64::INFINITY)) {
-        return 0.5 * (hitrecord.normal + Color::new(1.0, 1.0, 1.0));
-    }
-
-    let unit_direction = unit_vector(r.direction());
-    let t = 0.5 * (unit_direction.y() + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
-}
 
 fn main() {
     // Image
@@ -26,11 +17,36 @@ fn main() {
     let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 100;
+    let max_depth = 50;
 
     // World
     let mut world = HittableList::new();
-    world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.7, 0.3, 0.3));
+    let material_left = Metal::new(Color::new(0.8, 0.8, 0.8), 0.1);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+        Rc::new(material_ground),
+    )));
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        Rc::new(material_center),
+    )));
+    world.add(Box::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        Rc::new(material_left),
+    )));
+    world.add(Box::new(Sphere::new(
+        Point3::new(1.0, 0.0, -1.0),
+        0.5,
+        Rc::new(material_right),
+    )));
 
     // Camera
     let camera = Camera::new();
@@ -57,7 +73,7 @@ fn main() {
                 let v = (j as f64 + thread_rng().gen_range(0.0..1.0)) / (image_height - 1) as f64;
                 let r = camera.get_ray(u, v);
 
-                pixel_color += ray_color(r, &world);
+                pixel_color += ray_color(r, &world, max_depth);
             }
             write_color(&mut data, pixel_color, samples_per_pixel);
         }
