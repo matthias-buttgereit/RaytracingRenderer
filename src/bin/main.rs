@@ -6,24 +6,31 @@ use raytracing::{
     hits::hittalbe_list::HittableList,
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     objects::sphere::Sphere,
-    ray_color,
-    vec3::{Color, Point3, Vec3, random_vector, random_vector_in_range},
-    write_color, random_f64,
+    random_f64, ray_color,
+    vec3::{random_vector, random_vector_in_range, Color, Point3, Vec3},
+    write_color,
 };
 
 fn random_scene() -> HittableList {
     let mut world = HittableList::new();
 
     let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
-    world.add(Box::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Rc::new(ground_material))));
-
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Rc::new(ground_material),
+    )));
 
     for a in -11..11 {
         for b in -11..11 {
             let choose_material = random_f64();
-            let center = Point3::new(a as f64+ 0.8*random_f64(), 0.2, b as f64+0.8*random_f64());
+            let center = Point3::new(
+                a as f64 + 0.8 * random_f64(),
+                0.2,
+                b as f64 + 0.8 * random_f64(),
+            );
 
-            if (center - Point3::new(4.0,0.2, 0.0)).len() > 0.9 {
+            if (center - Point3::new(4.0, 0.2, 0.0)).len() > 0.9 {
                 if choose_material < 0.8 {
                     //diffuse
                     let albedo = random_vector() * random_vector();
@@ -45,20 +52,32 @@ fn random_scene() -> HittableList {
     }
 
     let material1 = Dielectric::new(1.5);
-    world.add(Box::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, Rc::new(material1))));
-    
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0,
+        Rc::new(material1),
+    )));
+
     let material2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
-    world.add(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Rc::new(material2))));
-    
+    world.add(Box::new(Sphere::new(
+        Point3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Rc::new(material2),
+    )));
+
     let material3 = Metal::new(Color::new(0.7, 0.8, 0.5), 0.0);
-    world.add(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Rc::new(material3))));
-    return world
+    world.add(Box::new(Sphere::new(
+        Point3::new(4.0, 1.0, 0.0),
+        1.0,
+        Rc::new(material3),
+    )));
+    world
 }
 
 fn main() {
     // Image
     let aspect_ratio = 3.0 / 2.0;
-    let image_width: u32 = 1200;
+    let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 500;
     let max_depth = 50;
