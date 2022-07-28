@@ -1,14 +1,13 @@
 use std::{fs::File, io::BufWriter, path::Path, rc::Rc, time::Instant};
 
-use rand::{thread_rng, Rng};
 use raytracing::{
     camera::Camera,
     hits::hittalbe_list::HittableList,
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
-    objects::sphere::Sphere,
+    objects::{moving_sphere::MovingSphere, sphere::Sphere},
     random_f64, ray_color,
     vec3::{random_vector, random_vector_in_range, Color, Point3, Vec3},
-    write_color,
+    write_color, random_f64_between,
 };
 
 fn random_scene() -> HittableList {
@@ -35,11 +34,17 @@ fn random_scene() -> HittableList {
                     //diffuse
                     let albedo = random_vector() * random_vector();
                     let sphere_material = Lambertian::new(albedo);
-                    world.add(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
+                    let center2 = center + Vec3::new(0.0,  random_f64_between(0.0, 0.5), 0.0);
+                    world.add(Box::new(MovingSphere::new(
+                        (center, center2),
+                        (0.0, 1.0),
+                        0.2,
+                        Rc::new(sphere_material),
+                    )));
                 } else if choose_material < 0.95 {
                     //metal
                     let albedo: Color = random_vector_in_range(0.5, 1.0);
-                    let fuzz = thread_rng().gen_range(0.0..0.5);
+                    let fuzz =  random_f64_between(0.0, 0.5);
                     let sphere_material = Metal::new(albedo, fuzz);
                     world.add(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
                 } else {
@@ -76,7 +81,7 @@ fn random_scene() -> HittableList {
 
 fn main() {
     // Image
-    let aspect_ratio = 3.0 / 2.0;
+    let aspect_ratio = 16.0 / 9.0;
     let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 100;
@@ -94,6 +99,7 @@ fn main() {
         aspect_ratio,
         0.1,
         10.0,
+        (0.0, 1.0),
     );
 
     // PNG File
@@ -114,8 +120,8 @@ fn main() {
         for i in 0..image_width {
             let mut pixel_color = Color::default();
             for _ in 0..samples_per_pixel {
-                let u = (i as f64 + thread_rng().gen_range(0.0..1.0)) / (image_width - 1) as f64;
-                let v = (j as f64 + thread_rng().gen_range(0.0..1.0)) / (image_height - 1) as f64;
+                let u = (i as f64 + random_f64()) / (image_width - 1) as f64;
+                let v = (j as f64 + random_f64()) / (image_height - 1) as f64;
                 let r = camera.get_ray(u, v);
 
                 pixel_color += ray_color(r, &world, max_depth);

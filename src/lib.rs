@@ -58,6 +58,10 @@ pub fn degrees_to_radians(degrees: f64) -> f64 {
     degrees * PI / 180.0
 }
 
+pub fn random_f64_between(min: f64, max: f64) -> f64 {
+    thread_rng().gen_range(min..max)
+}
+
 pub fn random_f64() -> f64 {
-    thread_rng().gen_range(0.0..1.0)
+    random_f64_between(0.0, 1.0)
 }

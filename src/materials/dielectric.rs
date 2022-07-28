@@ -1,9 +1,7 @@
-use rand::{thread_rng, Rng};
-
 use crate::{
     hits::hittable::HitRecord,
     ray::Ray,
-    vec3::{dot, reflect, refract, unit_vector, Color},
+    vec3::{dot, reflect, refract, unit_vector, Color}, random_f64,
 };
 
 use super::Material;
@@ -34,14 +32,17 @@ impl Material for Dielectric {
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
 
         let direction = if cannot_refract
-            || reflectance(cos_theta, refraction_ratio) > thread_rng().gen_range(0.0..1.0)
+            || reflectance(cos_theta, refraction_ratio) > random_f64()
         {
             reflect(&unit_direction, &hitrecord.normal)
         } else {
             refract(&unit_direction, &hitrecord.normal, refraction_ratio)
         };
 
-        Some((Ray::new(hitrecord.p, direction), Color::new(1.0, 1.0, 1.0)))
+        Some((
+            Ray::new(hitrecord.p, direction, r_in.time()),
+            Color::new(1.0, 1.0, 1.0),
+        ))
     }
 }
 

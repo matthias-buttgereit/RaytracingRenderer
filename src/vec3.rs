@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
-use rand::{thread_rng, Rng};
+use crate::{random_f64, random_f64_between};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Vec3 {
@@ -161,17 +161,17 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
 
 pub fn random_vector() -> Vec3 {
     Vec3 {
-        x: thread_rng().gen_range(0.0..1.0),
-        y: thread_rng().gen_range(0.0..1.0),
-        z: thread_rng().gen_range(0.0..1.0),
+        x: random_f64(),
+        y: random_f64(),
+        z: random_f64(),
     }
 }
 
 pub fn random_vector_in_range(min: f64, max: f64) -> Vec3 {
     Vec3 {
-        x: thread_rng().gen_range(min..max),
-        y: thread_rng().gen_range(min..max),
-        z: thread_rng().gen_range(min..max),
+        x: random_f64_between(min, max),
+        y: random_f64_between(min, max),
+        z: random_f64_between(min, max),
     }
 }
 
@@ -204,8 +204,8 @@ pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
 pub fn random_in_unit_disk() -> Vec3 {
     loop {
         let p = Vec3::new(
-            thread_rng().gen_range(-1.0..1.0),
-            thread_rng().gen_range(-1.0..1.0),
+            random_f64_between(-1.0, 1.0),
+            random_f64_between(-1.0, 1.0),
             0.0,
         );
         if p.len_squared() >= 1.0 {
