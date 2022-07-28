@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use hits::hittable::Hittable;
 use ray::Ray;
 use vec3::{unit_vector, Color};
@@ -49,4 +51,8 @@ pub fn ray_color(r: Ray, world: &dyn Hittable, depth: u32) -> Color {
     let unit_direction = unit_vector(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+}
+
+pub fn degrees_to_radians(degrees: f64) -> f64 {
+    degrees * PI / 180.0
 }
