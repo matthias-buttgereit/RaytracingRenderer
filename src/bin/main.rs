@@ -25,9 +25,9 @@ fn random_scene() -> HittableList {
         for b in -11..11 {
             let choose_material = random_f64();
             let center = Point3::new(
-                a as f64 + 0.8 * random_f64(),
+                a as f64 + 0.15 + 0.85 * random_f64(),
                 0.2,
-                b as f64 + 0.8 * random_f64(),
+                b as f64 + 0.15 + 0.85 * random_f64(),
             );
 
             if (center - Point3::new(4.0, 0.2, 0.0)).len() > 0.9 {
@@ -79,7 +79,7 @@ fn main() {
     let aspect_ratio = 3.0 / 2.0;
     let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
-    let samples_per_pixel: u32 = 500;
+    let samples_per_pixel: u32 = 100;
     let max_depth = 50;
 
     // World
@@ -110,7 +110,7 @@ fn main() {
     // Render
     let start = Instant::now();
     for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {} ", j);
+        eprint!("\rProgress: {}%", ((image_height - j) * 100) / image_height);
         for i in 0..image_width {
             let mut pixel_color = Color::default();
             for _ in 0..samples_per_pixel {
