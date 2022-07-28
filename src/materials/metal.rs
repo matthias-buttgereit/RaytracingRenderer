@@ -1,7 +1,7 @@
 use crate::{
     hits::hittable::HitRecord,
     ray::Ray,
-    vec3::{random_in_unit_sphere, reflect, Color},
+    vec3::{dot, random_in_unit_sphere, reflect, Color},
 };
 
 use super::Material;
@@ -19,7 +19,7 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: Ray, hitrecord: &HitRecord) -> (Ray, Color) {
+    fn scatter(&self, r_in: Ray, hitrecord: &HitRecord) -> Option<(Ray, Color)> {
         let reflected_direction = reflect(&r_in.direction(), &hitrecord.normal);
 
         let scattered_ray = Ray::new(
@@ -27,6 +27,10 @@ impl Material for Metal {
             reflected_direction + self.fuzz * random_in_unit_sphere(),
         );
         let attenuation = self.albedo;
-        (scattered_ray, attenuation)
+        if dot(&scattered_ray.direction(), &hitrecord.normal) > 0.0 {
+            Some((scattered_ray, attenuation))
+        } else {
+            None
+        }
     }
 }

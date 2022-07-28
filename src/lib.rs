@@ -1,6 +1,6 @@
 use hits::hittable::Hittable;
 use ray::Ray;
-use vec3::{dot, unit_vector, Color};
+use vec3::{unit_vector, Color};
 
 pub mod camera;
 pub mod hits;
@@ -38,11 +38,11 @@ pub fn ray_color(r: Ray, world: &dyn Hittable, depth: u32) -> Color {
     }
 
     if let Some(hitrecord) = world.hit(&r, (0.001, f64::INFINITY)) {
-        let (scattered, attenuation) = hitrecord.material.scatter(r, &hitrecord);
-        if dot(&scattered.direction(), &hitrecord.normal) > 0.0 {
-            return attenuation * ray_color(scattered, world, depth - 1);
-        } else {
-            return Color::default();
+        match hitrecord.material.scatter(r, &hitrecord) {
+            Some((scattered, attenuation)) => {
+                return attenuation * ray_color(scattered, world, depth - 1)
+            }
+            None => return Color::default(),
         }
     }
 
