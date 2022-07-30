@@ -1,6 +1,9 @@
 use crate::ray::Ray;
 
-use super::hittable::{HitRecord, Hittable};
+use super::{
+    aabb::{surrounding_box, AABB},
+    hittable::{HitRecord, Hittable},
+};
 
 #[derive(Default)]
 pub struct HittableList {
@@ -33,5 +36,30 @@ impl Hittable for HittableList {
             };
         }
         hit_anything
+    }
+
+    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB> {
+        if self.list.is_empty() {
+            return None;
+        }
+
+        let mut return_option = AABB::default();
+        let mut first_box = true;
+
+        for object in &self.list {
+            match object.bounding_box(time) {
+                Some(temp_box) => {
+                    if first_box {
+                        return_option = temp_box;
+                        first_box = false
+                    } else {
+                        return_option = surrounding_box(temp_box, return_option);
+                    }
+                }
+                None => return None,
+            }
+        }
+
+        Some(return_option)
     }
 }

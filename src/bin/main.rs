@@ -5,9 +5,9 @@ use raytracing::{
     hits::hittalbe_list::HittableList,
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     objects::{moving_sphere::MovingSphere, sphere::Sphere},
-    random_f64, ray_color,
+    random_f64, random_f64_between, ray_color,
     vec3::{random_vector, random_vector_in_range, Color, Point3, Vec3},
-    write_color, random_f64_between,
+    write_color,
 };
 
 fn random_scene() -> HittableList {
@@ -34,7 +34,7 @@ fn random_scene() -> HittableList {
                     //diffuse
                     let albedo = random_vector() * random_vector();
                     let sphere_material = Lambertian::new(albedo);
-                    let center2 = center + Vec3::new(0.0,  random_f64_between(0.0, 0.5), 0.0);
+                    let center2 = center + Vec3::new(0.0, random_f64_between(0.0, 0.5), 0.0);
                     world.add(Box::new(MovingSphere::new(
                         (center, center2),
                         (0.0, 1.0),
@@ -44,7 +44,7 @@ fn random_scene() -> HittableList {
                 } else if choose_material < 0.95 {
                     //metal
                     let albedo: Color = random_vector_in_range(0.5, 1.0);
-                    let fuzz =  random_f64_between(0.0, 0.5);
+                    let fuzz = random_f64_between(0.0, 0.5);
                     let sphere_material = Metal::new(albedo, fuzz);
                     world.add(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
                 } else {

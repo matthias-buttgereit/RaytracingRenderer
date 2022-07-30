@@ -1,7 +1,8 @@
 use crate::{
     hits::hittable::HitRecord,
+    random_f64,
     ray::Ray,
-    vec3::{dot, reflect, refract, unit_vector, Color}, random_f64,
+    vec3::{dot, reflect, refract, unit_vector, Color},
 };
 
 use super::Material;
@@ -31,8 +32,7 @@ impl Material for Dielectric {
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
 
-        let direction = if cannot_refract
-            || reflectance(cos_theta, refraction_ratio) > random_f64()
+        let direction = if cannot_refract || reflectance(cos_theta, refraction_ratio) > random_f64()
         {
             reflect(&unit_direction, &hitrecord.normal)
         } else {

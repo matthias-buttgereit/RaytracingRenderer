@@ -1,10 +1,13 @@
 use std::rc::Rc;
 
 use crate::{
-    hits::hittable::{HitRecord, Hittable},
+    hits::{
+        aabb::{surrounding_box, AABB},
+        hittable::{HitRecord, Hittable},
+    },
     materials::Material,
     ray::Ray,
-    vec3::{dot, Point3},
+    vec3::{dot, Point3, Vec3},
 };
 
 pub struct MovingSphere {
@@ -74,5 +77,21 @@ impl Hittable for MovingSphere {
         result.set_face_normal(r, normal);
 
         Some(result)
+    }
+
+    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB> {
+        let (time0, time1) = time;
+        let box0 = AABB::new(
+            self.center(time0) - Vec3::new(self.radius, self.radius, self.radius),
+            self.center(time0) + Vec3::new(self.radius, self.radius, self.radius),
+        );
+        let box1 = AABB::new(
+            self.center(time1) - Vec3::new(self.radius, self.radius, self.radius),
+            self.center(time1) + Vec3::new(self.radius, self.radius, self.radius),
+        );
+
+        let output_box = surrounding_box(box0, box1);
+
+        Some(output_box)
     }
 }

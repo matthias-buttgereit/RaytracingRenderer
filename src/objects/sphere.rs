@@ -1,10 +1,13 @@
 use std::rc::Rc;
 
 use crate::{
-    hits::hittable::{HitRecord, Hittable},
+    hits::{
+        aabb::AABB,
+        hittable::{HitRecord, Hittable},
+    },
     materials::Material,
     ray,
-    vec3::{dot, Point3},
+    vec3::{dot, Point3, Vec3},
 };
 
 #[derive(Clone)]
@@ -62,5 +65,14 @@ impl Hittable for Sphere {
         result.set_face_normal(r, normal);
 
         Some(result)
+    }
+
+    #[allow(unused_variables)]
+    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB> {
+        let bounding_box = AABB::new(
+            self.center - Vec3::new(self.radius, self.radius, self.radius),
+            self.center + Vec3::new(self.radius, self.radius, self.radius),
+        );
+        Some(bounding_box)
     }
 }

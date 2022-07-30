@@ -6,8 +6,11 @@ use crate::{
     vec3::{dot, Point3, Vec3},
 };
 
+use super::aabb::AABB;
+
 pub trait Hittable {
     fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord>;
+    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB>;
 }
 pub struct HitRecord {
     pub p: Point3,

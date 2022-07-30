@@ -1,7 +1,7 @@
 use crate::{
-    degrees_to_radians,
+    degrees_to_radians, random_f64_between,
     ray::Ray,
-    vec3::{cross, random_in_unit_disk, unit_vector, Point3, Vec3}, random_f64_between,
+    vec3::{cross, random_in_unit_disk, unit_vector, Point3, Vec3},
 };
 
 #[derive(Default)]
