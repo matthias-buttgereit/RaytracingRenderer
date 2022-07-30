@@ -1,8 +1,9 @@
 use std::{fs::File, io::BufWriter, path::Path, rc::Rc, time::Instant};
 
 use raytracing::{
+    bvh_tree::bvh_node::BVHNode,
     camera::Camera,
-    hits::hittalbe_list::HittableList,
+    hits::hittable::Hittable,
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     objects::{moving_sphere::MovingSphere, sphere::Sphere},
     random_f64, random_f64_between, ray_color,
@@ -10,11 +11,11 @@ use raytracing::{
     write_color,
 };
 
-fn random_scene() -> HittableList {
-    let mut world = HittableList::new();
+fn random_scene() -> Vec<Box<dyn Hittable>> {
+    let mut world: Vec<Box<dyn Hittable>> = vec![];
 
     let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
-    world.add(Box::new(Sphere::new(
+    world.push(Box::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Rc::new(ground_material),
@@ -35,7 +36,7 @@ fn random_scene() -> HittableList {
                     let albedo = random_vector() * random_vector();
                     let sphere_material = Lambertian::new(albedo);
                     let center2 = center + Vec3::new(0.0, random_f64_between(0.0, 0.5), 0.0);
-                    world.add(Box::new(MovingSphere::new(
+                    world.push(Box::new(MovingSphere::new(
                         (center, center2),
                         (0.0, 1.0),
                         0.2,
@@ -46,32 +47,32 @@ fn random_scene() -> HittableList {
                     let albedo: Color = random_vector_in_range(0.5, 1.0);
                     let fuzz = random_f64_between(0.0, 0.5);
                     let sphere_material = Metal::new(albedo, fuzz);
-                    world.add(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
+                    world.push(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
                 } else {
                     //glass
                     let sphere_material = Dielectric::new(1.5);
-                    world.add(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
+                    world.push(Box::new(Sphere::new(center, 0.2, Rc::new(sphere_material))));
                 }
             }
         }
     }
 
     let material1 = Dielectric::new(1.5);
-    world.add(Box::new(Sphere::new(
+    world.push(Box::new(Sphere::new(
         Point3::new(0.0, 1.0, 0.0),
         1.0,
         Rc::new(material1),
     )));
 
     let material2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
-    world.add(Box::new(Sphere::new(
+    world.push(Box::new(Sphere::new(
         Point3::new(-4.0, 1.0, 0.0),
         1.0,
         Rc::new(material2),
     )));
 
     let material3 = Metal::new(Color::new(0.7, 0.8, 0.5), 0.0);
-    world.add(Box::new(Sphere::new(
+    world.push(Box::new(Sphere::new(
         Point3::new(4.0, 1.0, 0.0),
         1.0,
         Rc::new(material3),
@@ -82,13 +83,14 @@ fn random_scene() -> HittableList {
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width: u32 = 400;
+    let image_width: u32 = 1200;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 100;
     let max_depth = 50;
 
     // World
     let world = random_scene();
+    let world_tree = BVHNode::new(world, (0.0, 1.0));
 
     // Camera
     let camera = Camera::new(
@@ -124,7 +126,7 @@ fn main() {
                 let v = (j as f64 + random_f64()) / (image_height - 1) as f64;
                 let r = camera.get_ray(u, v);
 
-                pixel_color += ray_color(r, &world, max_depth);
+                pixel_color += ray_color(r, &world_tree, max_depth);
             }
             write_color(&mut data, pixel_color, samples_per_pixel);
         }
