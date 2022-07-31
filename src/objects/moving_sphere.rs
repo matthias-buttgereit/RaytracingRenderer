@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{f64::consts::PI, rc::Rc};
 
 use crate::{
     hits::{
@@ -31,6 +31,16 @@ impl MovingSphere {
             radius,
             material,
         }
+    }
+
+    fn get_sphere_uv(&self, p: &Point3) -> (f64, f64) {
+        let theta = (-p.y()).acos();
+        let phi = (-p.y()).atan2(p.x()) + PI;
+
+        let u = phi / (2.0 * PI);
+        let v = theta / PI;
+
+        (u, v)
     }
 
     pub fn center(&self, time: f64) -> Point3 {
@@ -67,12 +77,14 @@ impl Hittable for MovingSphere {
         let t = root;
         let p = r.at(t);
         let normal = (p - self.center(r.time())) / self.radius;
+        let uv = self.get_sphere_uv(&normal);
 
         let mut result = HitRecord {
             t,
             p,
             normal,
             front_face: true,
+            surface_coordinates: uv,
             material: Rc::clone(&self.material),
         };
         result.set_face_normal(r, normal);

@@ -7,6 +7,7 @@ use raytracing::{
     materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     objects::{moving_sphere::MovingSphere, sphere::Sphere},
     random_f64, random_f64_between, ray_color,
+    textures::checker_texture::CheckerTexture,
     vec3::{random_vector, random_vector_in_range, Color, Point3, Vec3},
     write_color,
 };
@@ -14,7 +15,12 @@ use raytracing::{
 fn random_scene() -> Vec<Box<dyn Hittable>> {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
-    let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
+    let checker = Rc::new(CheckerTexture::new_from_color(
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
+    ));
+
+    let ground_material = Lambertian::new_from_texture(checker);
     world.push(Box::new(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -84,10 +90,10 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width: u32 = 400;
+    let image_width: u32 = 800;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 50;
-    let max_depth = 10;
+    let max_depth = 20;
 
     // World
     let world = random_scene();

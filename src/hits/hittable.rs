@@ -17,6 +17,7 @@ pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
+    pub surface_coordinates: (f64, f64),
     pub front_face: bool,
     pub material: Rc<dyn Material>,
 }
@@ -40,6 +41,7 @@ impl Clone for HitRecord {
             t: self.t,
             front_face: self.front_face,
             material: Rc::clone(&self.material),
+            surface_coordinates: self.surface_coordinates,
         }
     }
 }

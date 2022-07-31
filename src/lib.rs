@@ -6,6 +6,7 @@ pub mod hits;
 pub mod materials;
 pub mod objects;
 pub mod ray;
+pub mod textures;
 pub mod vec3;
 
 use hits::hittable::Hittable;
