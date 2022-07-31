@@ -10,6 +10,7 @@ use crate::{
     vec3::{dot, Point3, Vec3},
 };
 
+#[derive(Clone)]
 pub struct MovingSphere {
     centers: (Point3, Point3),
     time_frame: (f64, f64),

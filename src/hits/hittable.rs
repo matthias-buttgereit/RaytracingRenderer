@@ -12,6 +12,7 @@ pub trait Hittable {
     fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord>;
     fn bounding_box(&self, time: (f64, f64)) -> Option<AABB>;
 }
+
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
@@ -28,5 +29,17 @@ impl HitRecord {
         } else {
             -outward_normal
         };
+    }
+}
+
+impl Clone for HitRecord {
+    fn clone(&self) -> Self {
+        Self {
+            p: self.p,
+            normal: self.normal,
+            t: self.t,
+            front_face: self.front_face,
+            material: Rc::clone(&self.material),
+        }
     }
 }

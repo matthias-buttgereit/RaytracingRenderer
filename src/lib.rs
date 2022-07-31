@@ -1,16 +1,17 @@
 use std::f64::consts::PI;
 
-use hits::hittable::Hittable;
-use rand::{thread_rng, Rng};
-use ray::Ray;
-use vec3::{unit_vector, Color};
-
+pub mod bvh_tree;
 pub mod camera;
 pub mod hits;
 pub mod materials;
 pub mod objects;
 pub mod ray;
 pub mod vec3;
+
+use hits::hittable::Hittable;
+use rand::{thread_rng, Rng};
+use ray::Ray;
+use vec3::{unit_vector, Color};
 
 pub fn write_color(list: &mut Vec<u8>, color: Color, samples_per_pixel: u32) {
     let scale = 1.0 / samples_per_pixel as f64;

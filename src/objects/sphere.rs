@@ -29,6 +29,8 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, r: &ray::Ray, interval: (f64, f64)) -> Option<HitRecord> {
+        //eprint!("checked!");
+
         let oc = r.origin() - self.center;
         let a = r.direction().len_squared();
         let half_b = dot(&oc, &r.direction());

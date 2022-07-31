@@ -11,6 +11,7 @@ Cargo.lock
 **/*.rs.bk
 =======
 /target/*
+/images/*
 images/book2 - 01 - bouncing balls.png
 images/final.ppm
 images/image1 - small ball over bigger ball.ppm
@@ -46,3 +47,4 @@ images/test4.ppm
 
 #/target
 images/its working again.png
+images/book2 - 01 - in higher quality.png
