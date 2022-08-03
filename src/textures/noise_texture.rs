@@ -10,12 +10,22 @@ use super::texture::Texture;
 #[derive(Default)]
 pub struct NoiseTexture {
     noise: Perlin,
+    scale: f64,
 }
 
 impl Texture for NoiseTexture {
     #[allow(unused_variables)]
     fn value(&self, uv: (f64, f64), p: &Point3) -> Color {
-        Color::new(1.0, 1.0, 1.0) * self.noise.noise(p)
+        Color::new(1.0, 1.0, 1.0) * self.noise.noise(self.scale * *p)
+    }
+}
+
+impl NoiseTexture {
+    pub fn new(sc: f64) -> Self {
+        Self {
+            noise: Perlin::default(),
+            scale: sc,
+        }
     }
 }
 
@@ -42,10 +52,14 @@ impl Perlin {
         new
     }
 
-    pub fn noise(&self, p: &Point3) -> f64 {
-        let u = p.x() - p.x().floor();
-        let v = p.y() - p.y().floor();
-        let w = p.z() - p.z().floor();
+    pub fn noise(&self, p: Point3) -> f64 {
+        let mut u = p.x() - p.x().floor();
+        let mut v = p.y() - p.y().floor();
+        let mut w = p.z() - p.z().floor();
+
+        u = u * u * (3.0 - 2.0 * u);
+        v = v * v * (3.0 - 2.0 * v);
+        w = w * w * (3.0 - 2.0 * w);
 
         let i = p.x().floor() as i32;
         let j = p.y().floor() as i32;

@@ -140,7 +140,7 @@ fn two_spheres() -> (BVHNode, Camera) {
 fn two_perlin_spheres() -> (BVHNode, Camera) {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
-    let pertext = Rc::new(NoiseTexture::default());
+    let pertext = Rc::new(NoiseTexture::new(4.0));
     let pertext_material: Rc<dyn Material> = Rc::new(Lambertian::new_from_texture(pertext));
 
     world.push(Box::new(Sphere::new(
