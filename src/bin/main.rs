@@ -4,15 +4,16 @@ use raytracing::{
     bvh_tree::bvh_node::BVHNode,
     camera::Camera,
     hits::hittable::Hittable,
-    materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
+    materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal, Material},
     objects::{moving_sphere::MovingSphere, sphere::Sphere},
     random_f64, random_f64_between, ray_color,
-    textures::checker_texture::CheckerTexture,
+    textures::{checker_texture::CheckerTexture, noise_texture::NoiseTexture},
     vec3::{random_vector, random_vector_in_range, Color, Point3, Vec3},
     write_color,
 };
 
-fn random_scene() -> Vec<Box<dyn Hittable>> {
+#[allow(dead_code)]
+fn random_scene() -> (BVHNode, Camera) {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
     let checker = Rc::new(CheckerTexture::new_from_color(
@@ -84,7 +85,88 @@ fn random_scene() -> Vec<Box<dyn Hittable>> {
         Rc::new(material3),
     )));
 
-    world
+    (
+        BVHNode::new(world, (0.0, 1.0)),
+        Camera::new(
+            Point3::new(13.0, 2.0, 3.0),
+            Point3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            20.0,
+            16.0 / 9.0,
+            0.1,
+            10.0,
+            (0.0, 1.0),
+        ),
+    )
+}
+
+#[allow(dead_code)]
+fn two_spheres() -> (BVHNode, Camera) {
+    let mut world: Vec<Box<dyn Hittable>> = vec![];
+
+    let checker = Rc::new(CheckerTexture::new_from_color(
+        Color::new(0.2, 0.3, 0.1),
+        Color::new(0.9, 0.9, 0.9),
+    ));
+    let checker_material: Rc<dyn Material> = Rc::new(Lambertian::new_from_texture(checker));
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, -10.0, 0.0),
+        10.0,
+        checker_material.clone(),
+    )));
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, 10.0, 0.0),
+        10.0,
+        checker_material.clone(),
+    )));
+
+    (
+        BVHNode::new(world, (0.0, 1.0)),
+        Camera::new(
+            Point3::new(13.0, 2.0, 3.0),
+            Point3::new(0.0, 0.0, 0.0),
+            Point3::new(0.0, 1.0, 0.0),
+            20.0,
+            16.0 / 9.0,
+            0.0,
+            20.0,
+            (0.0, 1.0),
+        ),
+    )
+}
+
+#[allow(dead_code)]
+fn two_perlin_spheres() -> (BVHNode, Camera) {
+    let mut world: Vec<Box<dyn Hittable>> = vec![];
+
+    let pertext = Rc::new(NoiseTexture::default());
+    let pertext_material: Rc<dyn Material> = Rc::new(Lambertian::new_from_texture(pertext));
+
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        pertext_material.clone(),
+    )));
+    world.push(Box::new(Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
+        2.0,
+        pertext_material.clone(),
+    )));
+
+    (
+        BVHNode::new(world, (0.0, 1.0)),
+        Camera::new(
+            Point3::new(13.0, 2.0, 3.0),
+            Point3::new(0.0, 0.0, 0.0),
+            Point3::new(0.0, 1.0, 0.0),
+            20.0,
+            16.0 / 9.0,
+            0.0,
+            20.0,
+            (0.0, 1.0),
+        ),
+    )
 }
 
 fn main() {
@@ -95,21 +177,8 @@ fn main() {
     let samples_per_pixel: u32 = 50;
     let max_depth = 20;
 
-    // World
-    let world = random_scene();
-    let world_tree = BVHNode::new(world, (0.0, 1.0));
-
-    // Camera
-    let camera = Camera::new(
-        Point3::new(13.0, 2.0, 3.0),
-        Point3::new(0.0, 0.0, 0.0),
-        Vec3::new(0.0, 1.0, 0.0),
-        20.0,
-        aspect_ratio,
-        0.1,
-        10.0,
-        (0.0, 1.0),
-    );
+    // World + Camera
+    let (world, camera) = two_perlin_spheres();
 
     // PNG File
     let mut data: Vec<u8> = Vec::with_capacity((3 * image_width * image_height) as usize);
@@ -133,7 +202,7 @@ fn main() {
                 let v = (j as f64 + random_f64()) / (image_height - 1) as f64;
                 let r = camera.get_ray(u, v);
 
-                pixel_color += ray_color(r, &world_tree, max_depth);
+                pixel_color += ray_color(r, &world, max_depth);
                 if j == 0 && i == 0 {
                     pixel_color = Color::new(1.0, 0.0, 0.0);
                 }
