@@ -1,6 +1,6 @@
 use crate::vec3::Color;
 
-use super::texture::Texture;
+use super::Texture;
 
 #[derive(Debug, Default)]
 pub struct SolidColor {

@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::{
     hits::hittable::HitRecord,
     ray::Ray,
-    textures::{solid_color::SolidColor, texture::Texture},
+    textures::{solid_color::SolidColor, Texture},
     vec3::{random_unit_vector, Color},
 };
 

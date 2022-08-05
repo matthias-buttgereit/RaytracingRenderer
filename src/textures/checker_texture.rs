@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::vec3::Color;
 
-use super::{solid_color::SolidColor, texture::Texture};
+use super::{solid_color::SolidColor, Texture};
 
 pub struct CheckerTexture {
     odd: Rc<dyn Texture>,

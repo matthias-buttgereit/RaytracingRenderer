@@ -12,7 +12,7 @@ pub mod vec3;
 use hits::hittable::Hittable;
 use rand::{thread_rng, Rng};
 use ray::Ray;
-use vec3::{unit_vector, Color};
+use vec3::Color;
 
 pub fn write_color(list: &mut Vec<u8>, color: Color, samples_per_pixel: u32) {
     let scale = 1.0 / samples_per_pixel as f64;
@@ -37,11 +37,12 @@ fn clamp(x: f64, range: (f64, f64)) -> f64 {
     x
 }
 
-pub fn ray_color(r: Ray, world: &dyn Hittable, depth: u32) -> Color {
+pub fn ray_color(r: Ray, background: &Color, world: &dyn Hittable, depth: u32) -> Color {
     if depth == 0 {
         return Color::default();
     }
 
+    /*
     if let Some(hitrecord) = world.hit(&r, (0.001, f64::INFINITY)) {
         match hitrecord.material.scatter(r, &hitrecord) {
             Some((scattered, attenuation)) => {
@@ -51,9 +52,29 @@ pub fn ray_color(r: Ray, world: &dyn Hittable, depth: u32) -> Color {
         }
     }
 
+    */
+
+    match world.hit(&r, (0.001, f64::INFINITY)) {
+        None => *background,
+
+        Some(hitrecord) => {
+            let emitted = hitrecord
+                .material
+                .emitted(hitrecord.surface_coordinates, &hitrecord.p);
+            match hitrecord.material.scatter(r, &hitrecord) {
+                None => emitted,
+
+                Some((scattered, attenuation)) => {
+                    emitted + attenuation * ray_color(scattered, background, world, depth - 1)
+                }
+            }
+        }
+    }
+    /*
     let unit_direction = unit_vector(r.direction());
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+    */
 }
 
 pub fn degrees_to_radians(degrees: f64) -> f64 {

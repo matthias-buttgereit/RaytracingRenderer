@@ -2,7 +2,7 @@ use rand::{thread_rng, Rng};
 
 use crate::vec3::{dot, random_vector_in_range, unit_vector, Color, Point3, Vec3};
 
-use super::texture::Texture;
+use super::Texture;
 
 #[derive(Default)]
 pub struct NoiseTexture {

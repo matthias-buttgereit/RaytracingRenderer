@@ -8,7 +8,7 @@ use crate::{
     vec3::{self, Color},
 };
 
-use super::texture::Texture;
+use super::Texture;
 
 pub struct ImageTexture {
     data: Vec<RGB<u8>>,

@@ -4,8 +4,15 @@ use raytracing::{
     bvh_tree::bvh_node::BVHNode,
     camera::Camera,
     hits::hittable::Hittable,
-    materials::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal, Material},
-    objects::{moving_sphere::MovingSphere, sphere::Sphere},
+    materials::{
+        dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
+        Material,
+    },
+    objects::{
+        aa_rect::{XYRect, XZRect, YZRect},
+        moving_sphere::MovingSphere,
+        sphere::Sphere,
+    },
     random_f64, random_f64_between, ray_color,
     textures::{
         checker_texture::CheckerTexture, image_texture::ImageTexture, noise_texture::NoiseTexture,
@@ -15,7 +22,7 @@ use raytracing::{
 };
 
 #[allow(dead_code)]
-fn random_scene() -> (BVHNode, Camera) {
+fn random_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
     let checker = Rc::new(CheckerTexture::new_from_color(
@@ -94,16 +101,17 @@ fn random_scene() -> (BVHNode, Camera) {
             Point3::new(0.0, 0.0, 0.0),
             Vec3::new(0.0, 1.0, 0.0),
             20.0,
-            16.0 / 9.0,
+            aspect_ratio,
             0.1,
             10.0,
             (0.0, 1.0),
         ),
+        Color::new(0.7, 0.8, 1.0),
     )
 }
 
 #[allow(dead_code)]
-fn two_spheres() -> (BVHNode, Camera) {
+fn two_spheres(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
     let checker = Rc::new(CheckerTexture::new_from_color(
@@ -130,16 +138,17 @@ fn two_spheres() -> (BVHNode, Camera) {
             Point3::new(0.0, 0.0, 0.0),
             Point3::new(0.0, 1.0, 0.0),
             20.0,
-            16.0 / 9.0,
+            aspect_ratio,
             0.0,
             20.0,
             (0.0, 1.0),
         ),
+        Color::new(0.7, 0.8, 1.0),
     )
 }
 
 #[allow(dead_code)]
-fn two_perlin_spheres() -> (BVHNode, Camera) {
+fn two_perlin_spheres(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     let mut world: Vec<Box<dyn Hittable>> = vec![];
 
     let pertext = Rc::new(NoiseTexture::new(4.0));
@@ -163,16 +172,17 @@ fn two_perlin_spheres() -> (BVHNode, Camera) {
             Point3::new(0.0, 0.0, 0.0),
             Point3::new(0.0, 1.0, 0.0),
             20.0,
-            16.0 / 9.0,
+            aspect_ratio,
             0.0,
             20.0,
             (0.0, 1.0),
         ),
+        Color::new(0.7, 0.8, 1.0),
     )
 }
 
 #[allow(dead_code)]
-fn earth() -> (BVHNode, Camera) {
+fn earth(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     let mut globe: Vec<Box<dyn Hittable>> = vec![];
 
     let earth_texture = Rc::new(ImageTexture::new("earthmap.jpg"));
@@ -191,24 +201,133 @@ fn earth() -> (BVHNode, Camera) {
             Point3::new(0.0, 0.0, 0.0),
             Point3::new(0.0, 1.0, 0.0),
             20.0,
-            16.0 / 9.0,
+            aspect_ratio,
             0.0,
             20.0,
             (0.0, 1.0),
         ),
+        Color::new(0.7, 0.8, 1.0),
+    )
+}
+
+#[allow(dead_code)]
+fn simple_light(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
+    let mut objects: Vec<Box<dyn Hittable>> = vec![];
+
+    let noise_texture = Rc::new(NoiseTexture::new(4.0));
+    let metal = Rc::new(Metal::new(Color::new(0.9, 0.9, 0.9), 0.1));
+
+    objects.push(Box::new(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        metal,
+    )));
+
+    objects.push(Box::new(Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
+        2.0,
+        Rc::new(Lambertian::new_from_texture(noise_texture)),
+    )));
+
+    let difflight = Rc::new(DiffuseLight::new(Color::new(4.0, 4.0, 4.0)));
+    objects.push(Box::new(XYRect::new(
+        (3.0, 5.0),
+        (1.0, 3.0),
+        -2.0,
+        difflight,
+    )));
+
+    let redlight = Rc::new(DiffuseLight::new(Color::new(10.0, 2.0, 2.0)));
+    objects.push(Box::new(Sphere::new(
+        Point3::new(0.0, 7.0, 0.0),
+        2.0,
+        redlight,
+    )));
+
+    (
+        BVHNode::new(objects, (0.0, 1.0)),
+        Camera::new(
+            Point3::new(26.0, 3.0, 6.0),
+            Point3::new(0.0, 2.0, 0.0),
+            Point3::new(0.0, 1.0, 0.0),
+            20.0,
+            aspect_ratio,
+            0.0,
+            20.0,
+            (0.0, 1.0),
+        ),
+        Color::default(),
+    )
+}
+
+#[allow(dead_code)]
+fn cornell_box(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
+    let mut objects: Vec<Box<dyn Hittable>> = vec![];
+
+    let red = Rc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let white = Rc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let green = Rc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+    let light = Rc::new(DiffuseLight::new(Color::new(15.0, 15.0, 15.0)));
+
+    objects.push(Box::new(YZRect::new(
+        (0.0, 555.0),
+        (0.0, 555.0),
+        555.0,
+        green,
+    )));
+    objects.push(Box::new(YZRect::new((0.0, 555.0), (0.0, 555.0), 0.0, red)));
+    objects.push(Box::new(XZRect::new(
+        (213.0, 343.0),
+        (227.0, 332.0),
+        554.0,
+        light,
+    )));
+    objects.push(Box::new(XZRect::new(
+        (0.0, 555.0),
+        (0.0, 555.0),
+        0.0,
+        white.clone(),
+    )));
+    objects.push(Box::new(XZRect::new(
+        (0.0, 555.0),
+        (0.0, 555.0),
+        555.0,
+        white.clone(),
+    )));
+    objects.push(Box::new(XYRect::new(
+        (0.0, 555.0),
+        (0.0, 555.0),
+        555.0,
+        white,
+    )));
+
+    (
+        BVHNode::new(objects, (0.0, 1.0)),
+        Camera::new(
+            Point3::new(278.0, 278.0, -800.0),
+            Point3::new(278.0, 278.0, 0.0),
+            Point3::new(0.0, 1.0, 0.0),
+            40.0,
+            aspect_ratio,
+            0.0,
+            20.0,
+            (0.0, 1.0),
+        ),
+        Color::default(),
     )
 }
 
 fn main() {
     // Image
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width: u32 = 800;
+    let aspect_ratio = 1.0;
+    let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
-    let samples_per_pixel: u32 = 50;
-    let max_depth = 20;
+    let samples_per_pixel: u32 = 200;
+    let max_depth = 50;
 
     // World + Camera
-    let (world, camera) = earth();
+    let (world, camera, background) = cornell_box(aspect_ratio);
+    //let background = Color::new(0.7, 0.8, 1.0);
 
     // PNG File
     let mut data: Vec<u8> = Vec::with_capacity((3 * image_width * image_height) as usize);
@@ -224,7 +343,12 @@ fn main() {
     // Render
     let start = Instant::now();
     for j in (0..image_height).rev() {
-        eprint!("\rProgress: {}%", ((image_height - j) * 100) / image_height);
+        eprint!(
+            "\r{} / {} lines rendered...",
+            image_height - j,
+            image_height
+        );
+        //eprint!("\rProgress: {}%", ((image_height - j) * 100) / image_height);
         for i in 0..image_width {
             let mut pixel_color = Color::default();
             for _ in 0..samples_per_pixel {
@@ -232,7 +356,7 @@ fn main() {
                 let v = (j as f64 + random_f64()) / (image_height - 1) as f64;
                 let r = camera.get_ray(u, v);
 
-                pixel_color += ray_color(r, &world, max_depth);
+                pixel_color += ray_color(r, &background, &world, max_depth);
                 if j == 0 && i == 0 {
                     pixel_color = Color::new(1.0, 0.0, 0.0);
                 }
@@ -245,7 +369,7 @@ fn main() {
     let end = start.elapsed();
 
     eprintln!(
-        "\nFinished in {}:{} minutes!",
+        "\nFinished in {}:{:02} minutes!",
         end.as_secs() / 60,
         end.as_secs() % 60
     );
