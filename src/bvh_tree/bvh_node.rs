@@ -90,11 +90,6 @@ impl BVHNode {
 }
 
 impl Hittable for BVHNode {
-    #[allow(unused_variables)]
-    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB> {
-        Some(self.hitbox)
-    }
-
     fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
         if !self.hitbox.hit(r, interval) {
             return None;
@@ -120,5 +115,10 @@ impl Hittable for BVHNode {
         }
 
         hitrecord
+    }
+
+    #[allow(unused_variables)]
+    fn bounding_box(&self, time: (f64, f64)) -> Option<AABB> {
+        Some(self.hitbox)
     }
 }

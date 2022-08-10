@@ -48,3 +48,8 @@ images/test4.ppm
 #/target
 images/its working again.png
 images/book2 - 01 - in higher quality.png
+.idea/modules.xml
+.gitignore
+.idea/vcs.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/raytracing.iml

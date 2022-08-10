@@ -332,7 +332,7 @@ fn cornell_box(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
             40.0,
             aspect_ratio,
             0.0,
-            20.0,
+            10.0,
             (0.0, 1.0),
         ),
         Color::default(),
@@ -534,11 +534,7 @@ fn final_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     let ns = 1000;
     for _ in 0..ns {
         boxes2.push(Box::new(Sphere::new(
-            Point3::new(
-                random_f64_between(0.0, 165.0),
-                random_f64_between(0.0, 165.0),
-                random_f64_between(0.0, 165.0),
-            ),
+            random_vector_in_range(0.0, 165.0),
             10.0,
             white.clone(),
         )));
@@ -571,13 +567,13 @@ fn final_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
 fn main() {
     // Image
     let aspect_ratio = 1.0;
-    let image_width: u32 = 100;
+    let image_width: u32 = 400;
     let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
-    let samples_per_pixel: u32 = 50;
+    let samples_per_pixel: u32 = 100;
     let max_depth = 50;
 
     // World + Camera
-    let (world, camera, background) = final_scene(aspect_ratio);
+    let (world, camera, background) = cornell_box(aspect_ratio);
 
     // PNG File
     let mut data: Vec<u8> = Vec::with_capacity((3 * image_width * image_height) as usize);
