@@ -1,4 +1,4 @@
-use crate::vec3::Color;
+use crate::vec3::{Color, Point3};
 
 use super::Texture;
 
@@ -21,7 +21,7 @@ impl SolidColor {
 
 impl Texture for SolidColor {
     #[allow(unused_variables)]
-    fn value(&self, uv: (f64, f64), p: &crate::vec3::Point3) -> Color {
+    fn value(&self, uv: (f64, f64), p: &Point3) -> Color {
         self.color_value
     }
 }

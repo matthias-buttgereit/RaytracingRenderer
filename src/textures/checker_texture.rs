@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::vec3::Color;
+use crate::vec3::{Color, Point3};
 
 use super::{solid_color::SolidColor, Texture};
 
@@ -23,7 +23,7 @@ impl CheckerTexture {
 }
 
 impl Texture for CheckerTexture {
-    fn value(&self, uv: (f64, f64), p: &crate::vec3::Point3) -> Color {
+    fn value(&self, uv: (f64, f64), p: &Point3) -> Color {
         let sines = (10.0 * p.x()).sin() * (10.0 * p.y()).sin() * (10.0 * p.z()).sin();
         if sines < 0.0 {
             self.odd.value(uv, p)
