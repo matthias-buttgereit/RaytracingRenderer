@@ -45,9 +45,9 @@ fn random_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
         for b in -11..11 {
             let choose_material = random_f64();
             let center = Point3::new(
-                a as f64 + 0.15 + 0.85 * random_f64(),
+                f64::from(a) + 0.15 + 0.85 * random_f64(),
                 0.2,
-                b as f64 + 0.15 + 0.85 * random_f64(),
+                f64::from(b) + 0.15 + 0.85 * random_f64(),
             );
 
             if (center - Point3::new(4.0, 0.2, 0.0)).len() > 0.9 {
@@ -432,8 +432,8 @@ fn final_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     for i in 0..boxes_per_side {
         for j in 0..boxes_per_side {
             let w = 100.0;
-            let x0 = -1000.0 + i as f64 * w;
-            let z0 = -1000.0 + j as f64 * w;
+            let x0 = -1000.0 + f64::from(i) * w;
+            let z0 = -1000.0 + f64::from(j) * w;
             let y0 = 0.0;
 
             let x1 = x0 + w;
@@ -568,7 +568,7 @@ fn main() {
     // Image
     let aspect_ratio = 1.0;
     let image_width: u32 = 400;
-    let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
+    let image_height: u32 = (f64::from(image_width) / aspect_ratio) as u32;
     let samples_per_pixel: u32 = 100;
     let max_depth = 50;
 
@@ -599,8 +599,8 @@ fn main() {
         for i in 0..image_width {
             let mut pixel_color = Color::default();
             for _ in 0..samples_per_pixel {
-                let u = (i as f64 + random_f64()) / (image_width - 1) as f64;
-                let v = (j as f64 + random_f64()) / (image_height - 1) as f64;
+                let u = (f64::from(i) + random_f64()) / f64::from(image_width - 1);
+                let v = (f64::from(j) + random_f64()) / f64::from(image_height - 1);
                 let r = camera.get_ray(u, v);
 
                 pixel_color += ray_color(r, &background, &world, max_depth);

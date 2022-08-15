@@ -33,16 +33,6 @@ impl MovingSphere {
         }
     }
 
-    fn get_sphere_uv(&self, p: &Point3) -> (f64, f64) {
-        let theta = (-p.y()).acos();
-        let phi = (-p.y()).atan2(p.x()) + PI;
-
-        let u = phi / (2.0 * PI);
-        let v = theta / PI;
-
-        (u, v)
-    }
-
     pub fn center(&self, time: f64) -> Point3 {
         let (center0, center1) = self.centers;
         let (time0, time1) = self.time_frame;
@@ -51,10 +41,10 @@ impl MovingSphere {
 }
 
 impl Hittable for MovingSphere {
-    fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
-        let oc = r.origin() - self.center(r.time());
-        let a = r.direction().len_squared();
-        let half_b = dot(&oc, &r.direction());
+    fn hit(&self, ray: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
+        let oc = ray.origin() - self.center(ray.time());
+        let a = ray.direction().len_squared();
+        let half_b = dot(&oc, &ray.direction());
         let c = oc.len_squared() - self.radius * self.radius;
 
         let discrim = half_b * half_b - a * c;
@@ -75,9 +65,9 @@ impl Hittable for MovingSphere {
         }
 
         let t = root;
-        let p = r.at(t);
-        let normal = (p - self.center(r.time())) / self.radius;
-        let uv = self.get_sphere_uv(&normal);
+        let p = ray.at(t);
+        let normal = (p - self.center(ray.time())) / self.radius;
+        let uv = get_sphere_uv(&normal);
 
         let mut result = HitRecord {
             t,
@@ -87,7 +77,7 @@ impl Hittable for MovingSphere {
             surface_coordinates: uv,
             material: Rc::clone(&self.material),
         };
-        result.set_face_normal(r, normal);
+        result.set_face_normal(ray, normal);
 
         Some(result)
     }
@@ -107,4 +97,14 @@ impl Hittable for MovingSphere {
 
         Some(output_box)
     }
+}
+
+fn get_sphere_uv(p: &Point3) -> (f64, f64) {
+    let theta = (-p.y()).acos();
+    let phi = (-p.y()).atan2(p.x()) + PI;
+
+    let u = phi / (2.0 * PI);
+    let v = theta / PI;
+
+    (u, v)
 }

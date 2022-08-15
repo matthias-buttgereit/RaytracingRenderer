@@ -49,10 +49,10 @@ impl Texture for ImageTexture {
         let mut j = (v * self.height as f64) as usize;
 
         if i >= self.width {
-            i = self.width - 1
+            i = self.width - 1;
         };
         if j >= self.height {
-            j = self.height - 1
+            j = self.height - 1;
         };
 
         let color = self.data[(j * self.width + i)];
@@ -60,9 +60,9 @@ impl Texture for ImageTexture {
         let scale = 1.0 / 255.0;
 
         Color::new(
-            color.r as f64 * scale,
-            color.g as f64 * scale,
-            color.b as f64 * scale,
+            f64::from(color.r) * scale,
+            f64::from(color.g) * scale,
+            f64::from(color.b) * scale,
         )
     }
 }

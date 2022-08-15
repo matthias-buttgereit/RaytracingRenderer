@@ -15,7 +15,7 @@ use ray::Ray;
 use vec3::Color;
 
 pub fn write_color(list: &mut Vec<u8>, color: Color, samples_per_pixel: u32) {
-    let scale = 1.0 / samples_per_pixel as f64;
+    let scale = 1.0 / f64::from(samples_per_pixel);
 
     let r = (color.x() * scale).sqrt();
     let g = (color.y() * scale).sqrt();

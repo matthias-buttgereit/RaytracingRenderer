@@ -16,7 +16,7 @@ impl HittableList {
     }
 
     pub fn add(&mut self, value: Box<dyn Hittable>) {
-        self.list.push(value)
+        self.list.push(value);
     }
 
     pub fn new() -> Self {
@@ -51,7 +51,7 @@ impl Hittable for HittableList {
                 Some(temp_box) => {
                     if first_box {
                         return_option = temp_box;
-                        first_box = false
+                        first_box = false;
                     } else {
                         return_option = surrounding_box(temp_box, return_option);
                     }

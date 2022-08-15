@@ -6,6 +6,7 @@ use crate::{
         hittable::{HitRecord, Hittable},
     },
     materials::Material,
+    ray::Ray,
     vec3::{Point3, Vec3},
 };
 
@@ -36,26 +37,26 @@ impl Hittable for XYRect {
         ))
     }
 
-    fn hit(&self, r: &crate::ray::Ray, interval: (f64, f64)) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
         let t = (self.k - r.origin().z()) / r.direction().z();
 
         if t < interval.0 || t > interval.1 {
             return None;
         }
 
-        let x = r.origin().x() + t * r.direction().x();
-        let y = r.origin().y() + t * r.direction().y();
+        let x_value = r.origin().x() + t * r.direction().x();
+        let y_value = r.origin().y() + t * r.direction().y();
 
-        if x < self.x_boundaries.0
-            || x > self.x_boundaries.1
-            || y < self.y_boundaries.0
-            || y > self.y_boundaries.1
+        if x_value < self.x_boundaries.0
+            || x_value > self.x_boundaries.1
+            || y_value < self.y_boundaries.0
+            || y_value > self.y_boundaries.1
         {
             return None;
         }
 
-        let u = (x - self.x_boundaries.0) / (self.x_boundaries.1 - self.x_boundaries.0);
-        let v = (y - self.y_boundaries.0) / (self.y_boundaries.1 - self.y_boundaries.0);
+        let u = (x_value - self.x_boundaries.0) / (self.x_boundaries.1 - self.x_boundaries.0);
+        let v = (y_value - self.y_boundaries.0) / (self.y_boundaries.1 - self.y_boundaries.0);
         let normal = Vec3::new(0.0, 0.0, 1.0);
         let uv = (u, v);
         let p = r.at(t);
@@ -101,26 +102,26 @@ impl Hittable for XZRect {
         ))
     }
 
-    fn hit(&self, r: &crate::ray::Ray, interval: (f64, f64)) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
         let t = (self.k - r.origin().y()) / r.direction().y();
 
         if t < interval.0 || t > interval.1 {
             return None;
         }
 
-        let x = r.origin().x() + t * r.direction().x();
-        let z = r.origin().z() + t * r.direction().z();
+        let x_value = r.origin().x() + t * r.direction().x();
+        let z_value = r.origin().z() + t * r.direction().z();
 
-        if x < self.x_boundaries.0
-            || x > self.x_boundaries.1
-            || z < self.z_boundaries.0
-            || z > self.z_boundaries.1
+        if x_value < self.x_boundaries.0
+            || x_value > self.x_boundaries.1
+            || z_value < self.z_boundaries.0
+            || z_value > self.z_boundaries.1
         {
             return None;
         }
 
-        let u = (x - self.x_boundaries.0) / (self.x_boundaries.1 - self.x_boundaries.0);
-        let v = (z - self.z_boundaries.0) / (self.z_boundaries.1 - self.z_boundaries.0);
+        let u = (x_value - self.x_boundaries.0) / (self.x_boundaries.1 - self.x_boundaries.0);
+        let v = (z_value - self.z_boundaries.0) / (self.z_boundaries.1 - self.z_boundaries.0);
         let normal = Vec3::new(0.0, 1.0, 0.0);
         let uv = (u, v);
         let p = r.at(t);
@@ -166,26 +167,26 @@ impl Hittable for YZRect {
         ))
     }
 
-    fn hit(&self, r: &crate::ray::Ray, interval: (f64, f64)) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, interval: (f64, f64)) -> Option<HitRecord> {
         let t = (self.k - r.origin().x()) / r.direction().x();
 
         if t < interval.0 || t > interval.1 {
             return None;
         }
 
-        let y = r.origin().y() + t * r.direction().y();
-        let z = r.origin().z() + t * r.direction().z();
+        let y_value = r.origin().y() + t * r.direction().y();
+        let z_value = r.origin().z() + t * r.direction().z();
 
-        if y < self.y_boundaries.0
-            || y > self.y_boundaries.1
-            || z < self.z_boundaries.0
-            || z > self.z_boundaries.1
+        if y_value < self.y_boundaries.0
+            || y_value > self.y_boundaries.1
+            || z_value < self.z_boundaries.0
+            || z_value > self.z_boundaries.1
         {
             return None;
         }
 
-        let u = (y - self.y_boundaries.0) / (self.y_boundaries.1 - self.y_boundaries.0);
-        let v = (z - self.z_boundaries.0) / (self.z_boundaries.1 - self.z_boundaries.0);
+        let u = (y_value - self.y_boundaries.0) / (self.y_boundaries.1 - self.y_boundaries.0);
+        let v = (z_value - self.z_boundaries.0) / (self.z_boundaries.1 - self.z_boundaries.0);
         let normal = Vec3::new(1.0, 0.0, 0.0);
         let uv = (u, v);
         let p = r.at(t);

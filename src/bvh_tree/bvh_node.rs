@@ -40,7 +40,7 @@ impl BVHNode {
                     .unwrap()
                     .bounding_box(time_frame)
                     .unwrap(),
-            )
+            );
         } else {
             let mut rng = thread_rng();
             let axis: u8 = rng.gen_range(0..3);

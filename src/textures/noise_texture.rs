@@ -46,7 +46,7 @@ impl Perlin {
 
         for _ in 0..256 {
             new.ranvec
-                .push(unit_vector(random_vector_in_range(-1.0, 1.0)))
+                .push(unit_vector(random_vector_in_range(-1.0, 1.0)));
         }
 
         new
@@ -75,7 +75,7 @@ impl Perlin {
             }
         }
 
-        perlin_interp(c, u, v, w)
+        perlin_interp(&c, u, v, w)
     }
 
     fn turb(&self, p: &Point3, depth: u32) -> f64 {
@@ -114,7 +114,7 @@ fn perlin_generate_perm() -> Vec<i32> {
     result
 }
 
-fn perlin_interp(c: Vec<Vec<Vec<Vec3>>>, u: f64, v: f64, w: f64) -> f64 {
+fn perlin_interp(c: &[Vec<Vec<Vec3>>], u: f64, v: f64, w: f64) -> f64 {
     let mut accum = 0.0;
 
     let uu = u * u * (3.0 - 2.0 * u);
@@ -124,9 +124,9 @@ fn perlin_interp(c: Vec<Vec<Vec<Vec3>>>, u: f64, v: f64, w: f64) -> f64 {
     for i in 0..2 {
         for j in 0..2 {
             for k in 0..2 {
-                let i_f = i as f64;
-                let j_f = j as f64;
-                let k_f = k as f64;
+                let i_f = f64::from(i);
+                let j_f = f64::from(j);
+                let k_f = f64::from(k);
 
                 let weight_v = Vec3::new(u - i_f, v - j_f, w - k_f);
 

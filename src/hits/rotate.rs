@@ -33,12 +33,10 @@ impl RotateY {
         for i in 0..2 {
             for j in 0..2 {
                 for k in 0..2 {
-                    let x = i as f64 * new.b_box.unwrap().max().x()
-                        + (1 - i) as f64 * new.b_box.unwrap().min().x();
-                    let y = j as f64 * new.b_box.unwrap().max().y()
-                        + (1 - j) as f64 * new.b_box.unwrap().min().y();
-                    let z = k as f64 * new.b_box.unwrap().max().z()
-                        + (1 - k) as f64 * new.b_box.unwrap().min().z();
+                    let aabb = new.b_box.unwrap();
+                    let x = f64::from(i) * aabb.max().x() + f64::from(1 - i) * aabb.min().x();
+                    let y = f64::from(j) * aabb.max().y() + f64::from(1 - j) * aabb.min().y();
+                    let z = f64::from(k) * aabb.max().z() + f64::from(1 - k) * aabb.min().z();
 
                     let new_x = new.cos_theta * x + new.sin_theta * z;
                     let new_z = -new.sin_theta * x + new.cos_theta * z;

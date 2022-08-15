@@ -38,7 +38,7 @@ impl Vec3 {
     }
 
     pub fn near_zero(&self) -> bool {
-        let s = 0.00000001;
+        let s = 0.000_000_01;
         self.x.abs() < s && self.y.abs() < s && self.z.abs() < s
     }
 }

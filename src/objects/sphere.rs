@@ -22,18 +22,8 @@ impl Sphere {
         Self {
             center,
             radius,
-            material: Rc::clone(&material),
+            material,
         }
-    }
-
-    fn get_sphere_uv(&self, p: &Point3) -> (f64, f64) {
-        let theta = (-p.y()).acos();
-        let phi = (-p.z()).atan2(p.x()) + PI;
-
-        let u = phi / (2.0 * PI);
-        let v = theta / PI;
-
-        (u, v)
     }
 }
 
@@ -64,7 +54,7 @@ impl Hittable for Sphere {
         let t = root;
         let p = r.at(t);
         let normal = (p - self.center) / self.radius;
-        let uv = self.get_sphere_uv(&normal);
+        let uv = get_sphere_uv(&normal);
 
         let mut result = HitRecord {
             t,
@@ -87,4 +77,14 @@ impl Hittable for Sphere {
         );
         Some(bounding_box)
     }
+}
+
+fn get_sphere_uv(p: &Point3) -> (f64, f64) {
+    let theta = (-p.y()).acos();
+    let phi = (-p.z()).atan2(p.x()) + PI;
+
+    let u = phi / (2.0 * PI);
+    let v = theta / PI;
+
+    (u, v)
 }
