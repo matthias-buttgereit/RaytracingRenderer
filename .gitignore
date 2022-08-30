@@ -53,3 +53,8 @@ images/book2 - 01 - in higher quality.png
 .idea/vcs.xml
 .idea/codeStyles/codeStyleConfig.xml
 .idea/raytracing.iml
+src/bin/main.rs
+final scene - low-res.png
+.gitignore
+final scene - high-res.png
+img-2.22-book2-final.jpg

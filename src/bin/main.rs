@@ -531,7 +531,7 @@ fn final_scene(aspect_ratio: f64) -> (BVHNode, Camera, Color) {
     // Translation + Rotation
     let mut boxes2: Vec<Box<dyn Hittable>> = vec![];
     let white = Rc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
-    let ns = 1000;
+    let ns = 1_000;
     for _ in 0..ns {
         boxes2.push(Box::new(Sphere::new(
             random_vector_in_range(0.0, 165.0),
